@@ -1,11 +1,9 @@
-<h1><p align="center">Hello, world! 👋</p></h1>
+# Hello, world! 👋
 
-<p align="center">
-  <img width="480" src="https://github-readme-stats.vercel.app/api?username=0xLaileb&show_icons=true&theme=material-palenight&count_private=true&hide_border=false"/>
-</p>
+* C# (WPF, ASPNET Core)
+* C++ (only hacking memory)
+* SQL (pg \ ms)
+* Python (noob)
 
-<!--
-<p align="center">
-  <img width="450" src="https://github-readme-stats.vercel.app/api/top-langs/?username=0xLaileb&layout=compact&theme=material-palenight&hide_border=true"/>
-</p>
--->
+<img width="480" src="https://github-readme-stats.vercel.app/api?username=0xLaileb&show_icons=true&theme=material-palenight&count_private=true&hide_border=false"/>
+<img src="https://count.getloli.com/get/@0xLaileb?theme=rule34"/>
