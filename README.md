@@ -1,7 +1,7 @@
 # Hello, world! 👋
 
 * C# (WPF, ASPNET Core)
-* C++ (only hacking memory)
+* C++ (only hacking game memory: Warface\CSGO\HELLDIVERS 2\Deadlock)
 * SQL (pg \ ms)
 * Python (noob)
 
