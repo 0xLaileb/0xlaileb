@@ -5,22 +5,22 @@
 </picture>
 
 <p>
-  <img src="https://skillicons.dev/icons?i=cs" width="48" height="48" alt="C#" title="C#">
-  <img src="https://skillicons.dev/icons?i=dotnet" width="48" height="48" alt=".NET" title=".NET">
-  <img src="https://skillicons.dev/icons?i=cpp" width="48" height="48" alt="C++" title="C++">
-  <img src="https://skillicons.dev/icons?i=py" width="48" height="48" alt="Python" title="Python">
-  <img src="https://skillicons.dev/icons?i=postgres" width="48" height="48" alt="PostgreSQL" title="PostgreSQL">
-  <img src="https://skillicons.dev/icons?i=docker" width="48" height="48" alt="Docker" title="Docker">
-  <img src="https://skillicons.dev/icons?i=kubernetes" width="48" height="48" alt="Kubernetes" title="Kubernetes">
-  <img src="https://skillicons.dev/icons?i=ubuntu" width="48" height="48" alt="Ubuntu" title="Ubuntu">
-  <img src="https://skillicons.dev/icons?i=git" width="48" height="48" alt="Git" title="Git">
-  <img src="https://skillicons.dev/icons?i=visualstudio" width="48" height="48" alt="Visual Studio" title="Visual Studio">
-  <img src="https://skillicons.dev/icons?i=rider" width="48" height="48" alt="JetBrains Rider" title="JetBrains Rider">
-  <img src="https://skillicons.dev/icons?i=vscode" width="48" height="48" alt="VS Code" title="VS Code">
-  <img src="assets/icons/claude.svg" width="48" height="48" alt="Claude" title="Claude">
-  <img src="assets/icons/codex.svg" width="48" height="48" alt="Codex" title="Codex">
-  <img src="https://skillicons.dev/icons?i=unity" width="48" height="48" alt="Unity" title="Unity">
-  <img src="https://skillicons.dev/icons?i=blender" width="48" height="48" alt="Blender" title="Blender">
+  <img src="assets/icons/cs.svg" width="48" height="48" alt="C#" title="C#">
+  <img src="assets/icons/dotnet.svg" width="48" height="48" alt=".NET" title=".NET">
+  <img src="assets/icons/cpp.svg" width="48" height="48" alt="C++" title="C++">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/python.svg"><img src="assets/icons/python.svg" width="48" height="48" alt="Python" title="Python"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/postgres.svg"><img src="assets/icons/postgres.svg" width="48" height="48" alt="PostgreSQL" title="PostgreSQL"></picture>
+  <img src="assets/icons/docker.svg" width="48" height="48" alt="Docker" title="Docker">
+  <img src="assets/icons/kubernetes.svg" width="48" height="48" alt="Kubernetes" title="Kubernetes">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/ubuntu.svg"><img src="assets/icons/ubuntu.svg" width="48" height="48" alt="Ubuntu" title="Ubuntu"></picture>
+  <img src="assets/icons/git.svg" width="48" height="48" alt="Git" title="Git">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/visualstudio.svg"><img src="assets/icons/visualstudio.svg" width="48" height="48" alt="Visual Studio" title="Visual Studio"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/rider.svg"><img src="assets/icons/rider.svg" width="48" height="48" alt="JetBrains Rider" title="JetBrains Rider"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/vscode.svg"><img src="assets/icons/vscode.svg" width="48" height="48" alt="VS Code" title="VS Code"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/claude.svg"><img src="assets/icons/claude.svg" width="48" height="48" alt="Claude" title="Claude"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/codex.svg"><img src="assets/icons/codex.svg" width="48" height="48" alt="Codex" title="Codex"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/unity.svg"><img src="assets/icons/unity.svg" width="48" height="48" alt="Unity" title="Unity"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/icons/dark/blender.svg"><img src="assets/icons/blender.svg" width="48" height="48" alt="Blender" title="Blender"></picture>
 </p>
 
 > C#/.NET developer from the Windows side of things: desktop apps (WPF, WinForms), ASP.NET Core backends and whatever lives in process memory.

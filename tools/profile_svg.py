@@ -2,11 +2,15 @@
 
     python tools/profile_svg.py header --out assets      # static hexdump banner
     python tools/profile_svg.py stats --user 0xLaileb --out dist
+    python tools/profile_svg.py icons --out assets/icons/dark  # dark-page icon tiles
 
 `stats` reads GitHub GraphQL with GITHUB_TOKEN (or GH_TOKEN). With the default
 Actions token only public repositories count toward languages and stars; a
 token that can read private repositories adds them to the language map.
 Contribution totals include private contributions whenever the profile shows them.
+
+`icons` copies every icon from --src whose tile is the stock skill-icons #242938
+with a lighter tile: on GitHub's dark canvas the stock one barely stands out.
 """
 
 import argparse
@@ -24,12 +28,12 @@ THEMES = {
     "dark": dict(
         bg="#0d1117", panel="#161b22", bar="#1c2128", border="#30363d", text="#c9d1d9",
         muted="#8b949e", dim="#484f58", accent="#bc8cff", ascii="#7ee787", addr="#79c0ff",
-        warn="#d29922", mod="#ff7b72", sel="#bc8cff",
+        warn="#d29922", mod="#ff7b72", sel="#bc8cff", tile="#343a46",
     ),
     "light": dict(
         bg="#ffffff", panel="#f6f8fa", bar="#eaeef2", border="#d0d7de", text="#1f2328",
         muted="#656d76", dim="#8c959f", accent="#8250df", ascii="#1a7f37", addr="#0969da",
-        warn="#9a6700", mod="#cf222e", sel="#8250df",
+        warn="#9a6700", mod="#cf222e", sel="#8250df", tile="#242938",
     ),
 }
 
@@ -72,6 +76,10 @@ def frame(c, h, title, tabs):
     return out
 
 
+def attr(s):
+    return escape(s, {'"': "&quot;"})
+
+
 def svg(c, h, label, body, css):
     style = (
         f"text{{font-family:{FONT};font-size:13px;fill:{c['text']};white-space:pre}}"
@@ -79,7 +87,7 @@ def svg(c, h, label, body, css):
         f".as{{fill:{c['ascii']}}}.md{{fill:{c['mod']}}}.b{{font-weight:600}}" + css + REDUCED
     )
     return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{h}" viewBox="0 0 {W} {h}" role="img" aria-label="{escape(label)}">'
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{h}" viewBox="0 0 {W} {h}" role="img" aria-label="{attr(label)}">'
         f"<title>{escape(label)}</title><style>{style}</style>" + "".join(body) + "</svg>"
     )
 
@@ -146,12 +154,16 @@ def render_header(c):
 
 
 QUERY = """
-query($login: String!, $cursor: String) {
+query($login: String!, $cursor: String, $first: Boolean!) {
   user(login: $login) {
     createdAt
     followers { totalCount }
-    contributionsCollection {
+    contributionsCollection @include(if: $first) {
       restrictedContributionsCount
+      commitContributionsByRepository(maxRepositories: 100) { repository { isPrivate } contributions { totalCount } }
+      issueContributionsByRepository(maxRepositories: 100) { repository { isPrivate } contributions { totalCount } }
+      pullRequestContributionsByRepository(maxRepositories: 100) { repository { isPrivate } contributions { totalCount } }
+      pullRequestReviewContributionsByRepository(maxRepositories: 100) { repository { isPrivate } contributions { totalCount } }
       contributionCalendar {
         totalContributions
         weeks { contributionDays { date contributionCount } }
@@ -181,13 +193,15 @@ def graphql(token, variables):
         payload = json.load(resp)
     if payload.get("errors"):
         raise RuntimeError(payload["errors"])
+    if not payload["data"]["user"]:
+        raise RuntimeError(f"GitHub user {variables['login']!r} not found")
     return payload["data"]["user"]
 
 
 def collect(login, token):
     user, repos, cursor = None, [], None
     while True:
-        page = graphql(token, {"login": login, "cursor": cursor})
+        page = graphql(token, {"login": login, "cursor": cursor, "first": user is None})
         user = user or page
         repos += page["repositories"]["nodes"]
         info = page["repositories"]["pageInfo"]
@@ -220,9 +234,17 @@ def collect(login, token):
     public = [r for r in repos if not r["isPrivate"]]
     created = dt.date.fromisoformat(user["createdAt"][:10])
     cal = user["contributionsCollection"]
+    # Restricted contributions are the private ones the token cannot see; the ones it
+    # can see (a token of the profile owner) only show up per repository.
+    private = cal["restrictedContributionsCount"] + sum(
+        r["contributions"]["totalCount"]
+        for kind in ("commit", "issue", "pullRequest", "pullRequestReview")
+        for r in cal[f"{kind}ContributionsByRepository"]
+        if r["repository"]["isPrivate"]
+    )
     return {
         "contributions": cal["contributionCalendar"]["totalContributions"],
-        "private": cal["restrictedContributionsCount"],
+        "private": private,
         "current": current,
         "longest": longest,
         "stars": sum(r["stargazerCount"] for r in public),
@@ -316,15 +338,29 @@ def render_stats(c, s):
     return svg(c, h, label, body, css)
 
 
+def render_icons(src, out):
+    """Re-tile the dark-tiled icons for GitHub's dark theme; colored tiles are fine as they are."""
+    stock, tile = THEMES["light"]["tile"], THEMES["dark"]["tile"]
+    for icon in sorted(src.glob("*.svg")):
+        doc = icon.read_text(encoding="utf-8")
+        if doc.count(stock) != 1:
+            continue
+        (out / icon.name).write_text(doc.replace(stock, tile), encoding="utf-8")
+        print(out / icon.name)
+
+
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("what", choices=["header", "stats"])
+    p.add_argument("what", choices=["header", "stats", "icons"])
     p.add_argument("--out", required=True)
     p.add_argument("--user", default="0xLaileb")
+    p.add_argument("--src", default="assets/icons", help="icons: directory with the stock icons")
     a = p.parse_args()
 
     out = pathlib.Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
+    if a.what == "icons":
+        return render_icons(pathlib.Path(a.src), out)
     if a.what == "stats":
         token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
         if not token:
