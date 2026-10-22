@@ -1,7 +1,7 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/header-dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="assets/header-light.svg">
-  <img alt="Hexdump of 0xLaileb: C#/.NET/C++/SQL, reverse engineer, vpn/xray/proxies, trading & crypto, vibe-coding w/AI" src="assets/header-dark.svg" width="100%">
+  <img alt="Hexdump of 0xLaileb: C#/.NET/C++/SQL, backend/realtime, vpn/xray/proxies, trading & crypto, vibe-coding w/AI" src="assets/header-dark.svg" width="100%">
 </picture>
 
 <p>
@@ -30,7 +30,7 @@
 - 📈 **Trading & markets**: my own portfolio analytics on the T-Invest API (.NET microservices, technical analysis, AI and ML signals, backtests) and strategy research with AI agents. Stocks and crypto.
 - 🌐 **VPN & networks**: self-hosted VPN infrastructure on Remnawave and Xray-core, proxies, and automation for VPS fleets.
 - 🤖 **Vibe coding & AI**: building with Claude Code and Codex, local LLMs and media generation on my own GPU, small browser games.
-- 🎮 **Game internals**: memory research and reverse engineering (Warface, CS:GO, HELLDIVERS 2, Deadlock).
+- 🛠️ **Windows internals**: low-level debugging and reverse engineering of native Windows apps.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/0xLaileb/0xlaileb/output/stats-dark.svg">
@@ -45,5 +45,5 @@
 </picture>
 
 <p align="center">
-  <img alt="Profile views" src="https://moe-counter.es3n1n.eu/get/@0xLaileb?theme=rule34">
+  <img alt="Profile views" src="https://moe-counter.es3n1n.eu/get/@0xLaileb?theme=moebooru">
 </p>
