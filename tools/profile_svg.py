@@ -41,7 +41,7 @@ THEMES = {
 ROWS = [
     b"0xLaileb" + b"\x00" * 8,
     b"C#/.NET/C++/SQL\x00",
-    b"reverse engineer",
+    b"backend/realtime",
     b"vpn/xray/proxies",
     b"trading & crypto",
     b"vibe-coding w/AI",
@@ -150,7 +150,7 @@ def render_header(c):
         t(86, sy + 21, f"INT3 breakpoint at <0xlaileb.main> ({BASE:016X})!", "m"),
         t(W - 16, sy + 21, "Time Wasted Debugging: 13:37:00", "d", ' text-anchor="end"'),
     ]
-    return svg(c, h, "0xLaileb: C#/.NET/C++/SQL, reverse engineer, vpn/xray/proxies, trading & crypto, vibe-coding w/AI", body, css)
+    return svg(c, h, "0xLaileb: C#/.NET/C++/SQL, backend/realtime, vpn/xray/proxies, trading & crypto, vibe-coding w/AI", body, css)
 
 
 QUERY = """
