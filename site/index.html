@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>0xLaileb.exe - attached</title>
+<meta name="description" content="Interactive debugger view of the 0xLaileb GitHub profile: live registers, shared memory, crackme.">
+<style>
+:root{--bg:#0d1117;--panel:#161b22;--bar:#1c2128;--border:#30363d;--text:#c9d1d9;--muted:#8b949e;--dim:#484f58;--accent:#bc8cff;--ascii:#7ee787;--addr:#79c0ff;--warn:#d29922;--mod:#ff7b72}
+@media (prefers-color-scheme:light){:root:not([data-theme=dark]){--bg:#fff;--panel:#f6f8fa;--bar:#eaeef2;--border:#d0d7de;--text:#1f2328;--muted:#656d76;--dim:#8c959f;--accent:#8250df;--ascii:#1a7f37;--addr:#0969da;--warn:#9a6700;--mod:#cf222e}}
+:root[data-theme=light]{--bg:#fff;--panel:#f6f8fa;--bar:#eaeef2;--border:#d0d7de;--text:#1f2328;--muted:#656d76;--dim:#8c959f;--accent:#8250df;--ascii:#1a7f37;--addr:#0969da;--warn:#9a6700;--mod:#cf222e}
+*{box-sizing:border-box}
+body{margin:0;padding:16px;background:var(--bg);color:var(--text);font:13px/1.5 ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace}
+a{color:var(--addr)}
+.win{max-width:1000px;margin:0 auto;background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.title{background:var(--bar);padding:7px 14px;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row{display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px;border-bottom:1px solid var(--border);align-items:center}
+button,input{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:3px 10px}
+button{cursor:pointer}button:hover{border-color:var(--accent)}button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.tab[aria-selected=true]{color:var(--accent);border-color:var(--accent)}
+.tab[aria-selected=false]{background:none;border-color:transparent;color:var(--muted)}
+.pane{padding:12px;min-height:340px;overflow-x:auto}
+.pane[hidden]{display:none}
+.split{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px}
+.split>div{min-width:0;overflow-x:auto}
+@media (max-width:720px){.split{grid-template-columns:1fr}body{padding:8px}}
+.m{color:var(--muted)}.d{color:var(--dim)}.ac{color:var(--accent)}.ad{color:var(--addr)}.as{color:var(--ascii)}.md{color:var(--mod)}.wn{color:var(--warn)}.b{font-weight:600}
+pre{margin:0;font:inherit;white-space:pre}
+.ln{display:block;padding:0 6px;border-radius:3px;cursor:pointer;white-space:pre}
+.ln.rip{background:color-mix(in srgb,var(--accent) 18%,transparent)}
+.ln.bp::before{content:"●";color:var(--mod);margin-right:-1ch}
+.ln.sel{background:color-mix(in srgb,var(--addr) 16%,transparent)}
+.grid{display:grid;grid-template-columns:repeat(16,1fr);gap:1px;width:min(100%,336px);aspect-ratio:1;background:var(--border);border:1px solid var(--border)}
+.grid i{background:var(--bar);cursor:pointer}.grid i.on{outline:2px solid var(--accent);outline-offset:-2px;z-index:1}
+.pal{display:grid;grid-template-columns:repeat(32,1fr);width:min(100%,416px);margin:8px 0}
+.pal i{aspect-ratio:1;cursor:pointer}.pal i:hover{outline:1px solid var(--text);z-index:1}
+.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,12px);grid-auto-columns:12px;gap:2px;min-width:max-content}
+.heat i{border-radius:2px;background:var(--bar)}
+.heat i[data-l="1"]{background:color-mix(in srgb,var(--accent) 30%,var(--bar))}.heat i[data-l="2"]{background:color-mix(in srgb,var(--accent) 50%,var(--bar))}
+.heat i[data-l="3"]{background:color-mix(in srgb,var(--accent) 75%,var(--bar))}.heat i[data-l="4"]{background:var(--accent)}
+table{border-collapse:collapse;width:100%}td{padding:2px 12px 2px 0;white-space:nowrap}td.r{text-align:right}
+#log{height:120px;overflow-y:auto;padding:8px 12px;border-top:1px solid var(--border);background:var(--bg);white-space:pre-wrap}
+.cmd{display:flex;gap:8px;padding:6px 12px;border-top:1px solid var(--border);align-items:center}
+.cmd input{flex:1;border:none;background:none;padding:2px 0}
+.status{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap;padding:7px 12px;border-top:1px solid var(--border);color:var(--dim)}
+.badge{color:var(--warn);border:1px solid var(--warn);border-radius:4px;padding:0 8px;font-weight:600}
+.field{display:flex;gap:8px;align-items:center;margin:6px 0;flex-wrap:wrap}.field input{min-width:0;flex:1 1 220px}
+h2{font-size:13px;margin:0 0 8px;color:var(--muted);font-weight:400}p{margin:6px 0;max-width:70ch}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<main class="win">
+  <div class="title" id="title">0xLaileb.exe · PID 1337 · Module: 0xlaileb.exe · Thread: Main</div>
+  <div class="row">
+    <button id="run" title="g">▶ Run</button><button id="step" title="t">⤵ Step</button><button id="restart">⟲ Restart</button>
+    <span style="flex:1"></span>
+    <a id="gh" href="https://github.com/0xLaileb">github.com/0xLaileb</a><button id="theme" aria-label="Toggle theme">◐</button>
+  </div>
+  <div class="row" role="tablist" id="tabs"></div>
+
+  <section class="pane" id="p-cpu"><div class="split">
+    <div><h2>Disassembly: click a line to toggle a breakpoint</h2><div id="asm"></div></div>
+    <div><h2>Registers</h2><table id="regs"></table><h2 style="margin-top:14px">Memory Map: languages</h2><table id="langs"></table></div>
+  </div></section>
+
+  <section class="pane" id="p-dump" hidden><div class="split">
+    <div><h2>Dump 1: click a row to inspect it</h2><div id="dump"></div></div>
+    <div><h2>Data inspector</h2><div id="insp" class="m">No row selected.</div>
+      <div class="field"><label for="key">XOR key (hex)</label><input id="key" placeholder="e.g. FF or A1B2" autocomplete="off" spellcheck="false"></div>
+      <pre id="xor" class="as"></pre></div>
+  </div></section>
+
+  <section class="pane" id="p-mem" hidden><div class="split">
+    <div><h2>Dump 2: 256 shared bytes, drawn as RGB332 pixels</h2><div class="grid" id="grid"></div>
+      <p class="d" id="memnote"></p></div>
+    <div><h2>Pick a byte, pick a colour, write it</h2><div class="pal" id="pal"></div>
+      <p>Command: <span class="ac b" id="poke">poke 00 00</span></p>
+      <p><a id="pokelink" target="_blank" rel="noopener">Write this byte via a GitHub issue</a></p>
+      <p class="m">One issue writes one byte. A workflow validates the title, closes the issue and re-renders the card on the profile within a few minutes.</p></div>
+  </div></section>
+
+  <section class="pane" id="p-map" hidden><h2>Memory Map: contributions, last year</h2><div class="heat" id="heat"></div><p class="m" id="heatnote">Hover a cell.</p></section>
+
+  <section class="pane" id="p-stack" hidden><h2>Call Stack: recently pushed public repositories</h2><table id="stack"></table></section>
+
+  <section class="pane" id="p-crack" hidden><div class="split">
+    <div><h2>Crackme</h2>
+      <p>One row of Dump 1 is not text. Recover the 16-character flag from it; the header of this window is not just decoration.</p>
+      <div class="field"><label for="flag">flag</label><input id="flag" autocomplete="off" spellcheck="false" maxlength="64"></div>
+      <div class="field"><label for="login">GitHub login</label><input id="login" autocomplete="off" spellcheck="false" maxlength="39"></div>
+      <button id="check">Check and build proof</button>
+      <p id="verdict" class="m" role="status"></p>
+      <p class="d">The flag is checked in your browser and never leaves it. The proof is sha256("flag:login") and only works for your login, so posting it publicly spoils nothing.</p></div>
+    <div><h2>Hall of Fame</h2><table id="fame"></table></div>
+  </div></section>
+
+  <div id="log" aria-live="polite"></div>
+  <div class="cmd"><span class="ac">&gt;</span><input id="cmd" aria-label="Debugger command" placeholder="help" autocomplete="off" spellcheck="false"></div>
+  <div class="status"><span><span class="badge" id="state">Paused</span> <span id="where"></span></span><span id="upd"></span></div>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const hx = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, '0');
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const bytes = s => (s.match(/../g) || []).map(b => parseInt(b, 16));
+const rgb332 = b => `rgb(${Math.floor((b >> 5) * 255 / 7)},${Math.floor(((b >> 2) & 7) * 255 / 7)},${(b & 3) * 85})`;
+let D = { user: '0xLaileb', repo: '0xLaileb/0xlaileb', updated: 'offline', base: '00007FF60A11EB00', rows: [], stats: {}, langs: [], weeks: [], repos: [], memory: '', pokes: 0, painters: 0, last: null, fame: [], flag_sha256: '' };
+
+const ASM = [
+  ['push', 'rbp', ''], ['mov', 'rbp, rsp', ''],
+  ['lea', 'rcx, [skills.dotnet]', 'C#, .NET, WPF, WinForms, ASP.NET Core'], ['call', 'dotnet.build', 'desktop apps and backends'],
+  ['lea', 'rcx, [markets.t_invest]', 'portfolio analytics, backtests, AI and ML signals'], ['call', 'trading.analyze', 'stocks and crypto'],
+  ['lea', 'rcx, [net.xray]', 'self-hosted VPN: Remnawave, Xray-core'], ['call', 'vpn.deploy', 'proxies and VPS fleet automation'],
+  ['lea', 'rcx, [ai.agents]', 'Claude Code, Codex, local LLMs'], ['call', 'vibe.code', 'small browser games, media on my own GPU'],
+  ['lea', 'rcx, [win.internals]', 'low-level debugging, reverse engineering'], ['call', 'debugger.attach', 'whatever lives in process memory'],
+  ['int3', '', 'breakpoint'], ['jmp', '0xlaileb.main', 'and again'],
+];
+let rip = 0, bps = new Set([12]), timer = null, sel = { addr: 0, value: 0xE0 }, row = -1;
+
+function log(text, cls) { const l = $('#log'); l.append(el('div', cls, text)); l.scrollTop = l.scrollHeight; }
+const addrOf = i => { const a = (BigInt('0x' + D.base) + BigInt(i * 16)).toString(16).toUpperCase().padStart(16, '0'); return a.slice(0, 8) + '`' + a.slice(8); };
+
+function drawAsm() {
+  const box = $('#asm'); box.replaceChildren();
+  ASM.forEach(([op, arg, note], i) => {
+    const l = el('span', 'ln' + (i === rip ? ' rip' : '') + (bps.has(i) ? ' bp' : ''));
+    l.append(el('span', 'ad', '  ' + addrOf(i).slice(9) + '  '), el('span', 'ac b', op.padEnd(5)), el('span', '', arg.padEnd(26)), el('span', 'd', note ? '; ' + note : ''));
+    l.onclick = () => { bps.has(i) ? bps.delete(i) : bps.add(i); drawAsm(); };
+    box.append(l);
+  });
+  $('#where').textContent = `RIP ${addrOf(rip)}  ${ASM[rip][0]} ${ASM[rip][1]}`;
+}
+function step(quiet) {
+  const [op, arg, note] = ASM[rip];
+  if (op === 'call') log(`${arg}()  ; ${note}`, 'as');
+  rip = op === 'jmp' ? 0 : rip + 1;
+  drawAsm();
+  if (!quiet && bps.has(rip)) log(`Breakpoint at ${addrOf(rip)}`, 'wn');
+}
+function pause() { clearInterval(timer); timer = null; $('#state').textContent = 'Paused'; $('#run').textContent = '▶ Run'; }
+function run() {
+  if (timer) return pause();
+  $('#state').textContent = 'Running'; $('#run').textContent = '❚❚ Pause';
+  timer = setInterval(() => { step(true); if (bps.has(rip)) { pause(); log(`Breakpoint at ${addrOf(rip)}`, 'wn'); } }, 350);
+}
+
+function drawRegs() {
+  const s = D.stats, regs = [['RAX', s.contributions, 'contributions (1y)'], ['RBX', s.private, 'in private repos'], ['RCX', s.current, 'current streak, days'], ['RDX', s.longest, 'longest streak, days'], ['RSI', s.stars, 'stars earned'], ['RDI', s.public, 'public repos'], ['R8', s.followers, 'followers'], ['R9', s.years, 'years on GitHub']];
+  $('#regs').replaceChildren(...regs.map(([r, v, n]) => { const tr = el('tr'); tr.append(el('td', 'b', r), el('td', '', v == null ? '????????????????' : hx(v, 16)), el('td', 'm', n), el('td', 'r ac b', v == null ? '?' : v.toLocaleString('en'))); return tr; }));
+  const total = D.langs.reduce((a, l) => a + l.size, 0) || 1;
+  $('#langs').replaceChildren(...D.langs.map(l => { const tr = el('tr'), dot = el('td', '', '■'); dot.style.color = /^#[0-9a-f]{3,8}$/i.test(l.color) ? l.color : ''; tr.append(dot, el('td', '', l.name), el('td', 'r m', (l.size / total * 100).toFixed(1) + '%')); return tr; }));
+}
+
+function drawDump() {
+  const box = $('#dump'); box.replaceChildren();
+  D.rows.forEach((r, i) => {
+    const b = bytes(r), l = el('span', 'ln' + (i === row ? ' sel' : ''));
+    l.append(el('span', 'ad', addrOf(i) + '  '), el('span', '', b.map(x => hx(x)).join(' ').replace(/^(.{23}) /, '$1  ') + '  '), el('span', 'as', b.map(x => x >= 32 && x < 127 ? String.fromCharCode(x) : '.').join('')));
+    l.onclick = () => { row = i; drawDump(); inspect(); };
+    box.append(l);
+  });
+}
+function inspect() {
+  if (row < 0) return;
+  const b = bytes(D.rows[row]), key = bytes($('#key').value.replace(/[^0-9a-f]/gi, ''));
+  $('#insp').textContent = `${addrOf(row)}: ${b.length} bytes, sum ${hx(b.reduce((a, x) => a + x, 0) & 0xFFFF, 4)}, printable ${b.filter(x => x >= 32 && x < 127).length}/16`;
+  $('#xor').textContent = key.length ? b.map((x, i) => { const v = x ^ key[i % key.length]; return v >= 32 && v < 127 ? String.fromCharCode(v) : '.'; }).join('') : '';
+}
+
+function issue(title) { return `https://github.com/${D.repo}/issues/new?title=${encodeURIComponent(title)}`; }
+function drawMem() {
+  const mem = bytes(D.memory.padEnd(512, '0')), grid = $('#grid'); grid.replaceChildren();
+  mem.forEach((v, i) => { const c = el('i', i === sel.addr ? 'on' : ''); if (i === sel.addr ? sel.value : v) c.style.background = rgb332(i === sel.addr ? sel.value : v); c.title = `${hx(i)}: ${hx(v)}`; c.onclick = () => { sel.addr = i; drawMem(); }; grid.append(c); });
+  const cmd = `poke ${hx(sel.addr)} ${hx(sel.value)}`;
+  $('#poke').textContent = cmd; $('#pokelink').href = issue(cmd);
+  $('#memnote').textContent = `${D.pokes} pokes by ${D.painters} visitors` + (D.last ? ` · last: @${D.last.login} wrote ${hx(D.last.value)} at ${hx(D.last.addr)}` : '');
+}
+function drawPal() {
+  $('#pal').replaceChildren(...Array.from({ length: 256 }, (_, v) => { const c = el('i'); c.style.background = rgb332(v); c.title = hx(v); c.onclick = () => { sel.value = v; drawMem(); }; return c; }));
+}
+
+function drawHeat() {
+  const days = D.weeks.flat(), box = $('#heat'); box.replaceChildren();
+  const pad = days.length ? new Date(days[0].date + 'T00:00:00Z').getUTCDay() : 0;
+  for (let i = 0; i < pad; i++) { const c = el('i'); c.style.visibility = 'hidden'; box.append(c); }
+  days.forEach(d => { const c = el('i'); c.dataset.l = d.level; c.title = `${d.date}: ${d.count}`; c.onmouseenter = () => $('#heatnote').textContent = `${d.date}: ${d.count} contributions`; box.append(c); });
+}
+function drawStack() {
+  $('#stack').replaceChildren(...D.repos.map((r, i) => { const tr = el('tr'), name = el('td'), a = el('a', '', r.name + '!main'); a.href = `https://github.com/${D.user}/${encodeURIComponent(r.name)}`; name.append(a); tr.append(el('td', 'd', '#' + i), name, el('td', 'm', r.lang), el('td', 'r m', '★ ' + r.stars), el('td', 'r m', r.pushed)); return tr; }));
+  if (!D.repos.length) $('#stack').append(el('tr', 'd', '<no public frames>'));
+}
+function drawFame() {
+  $('#fame').replaceChildren(...D.fame.map((f, i) => { const tr = el('tr'); tr.append(el('td', 'd', String(i + 1).padStart(2, '0')), el('td', i ? '' : 'ac b', '@' + f.login), el('td', 'm', f.date), el('td', 'wn b', i ? '' : 'first blood')); return tr; }));
+  if (!D.fame.length) $('#fame').append(el('tr', 'm', 'No one has decoded the flag yet.'));
+}
+
+const sha = async s => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)))).map(b => b.toString(16).padStart(2, '0')).join('');
+async function check() {
+  const flag = $('#flag').value.trim(), login = $('#login').value.trim().toLowerCase(), out = $('#verdict');
+  out.replaceChildren();
+  if (!flag || !/^[a-z0-9-]{1,39}$/.test(login)) { out.textContent = 'Enter the flag and a valid GitHub login.'; return; }
+  if (!crypto.subtle) { out.textContent = 'This browser context has no WebCrypto; open the page over https.'; return; }
+  if (!D.flag_sha256 || await sha(flag) !== D.flag_sha256) { out.textContent = 'Access violation: that is not the flag.'; out.className = 'md'; return; }
+  const a = el('a', '', 'Submit the proof as a GitHub issue'); a.href = issue('crackme ' + await sha(`${flag}:${login}`)); a.target = '_blank'; a.rel = 'noopener';
+  out.className = 'as'; out.append('Correct. ', a, ' while signed in as @' + login + '.');
+}
+
+const TABS = [['cpu', 'CPU'], ['dump', 'Dump 1'], ['mem', 'Dump 2'], ['map', 'Memory Map'], ['stack', 'Call Stack'], ['crack', 'Crackme']];
+function show(id) {
+  TABS.forEach(([t]) => { $('#p-' + t).hidden = t !== id; $('#t-' + t).setAttribute('aria-selected', t === id); });
+}
+function command(line) {
+  const [c, ...a] = line.trim().split(/\s+/); if (!c) return;
+  log('> ' + line, 'ac');
+  const tab = TABS.find(([t, n]) => t === c.toLowerCase());
+  if (tab) return show(tab[0]);
+  switch (c.toLowerCase()) {
+    case 'help': return log('g run/pause · t step · r registers · bp <line> breakpoint · db <row> inspect · xor <hexkey> · poke <addr> <value> · k stack · cls · theme\ntabs: ' + TABS.map(t => t[0]).join(' '), 'm');
+    case 'g': return run();
+    case 't': return step();
+    case 'r': show('cpu'); return log(Object.entries(D.stats).map(([k, v]) => `${k}=${v}`).join('  '), 'm');
+    case 'bp': { const i = parseInt(a[0], 10); if (!(i >= 0 && i < ASM.length)) return log(`bp <0..${ASM.length - 1}>`, 'md'); bps.has(i) ? bps.delete(i) : bps.add(i); return drawAsm(); }
+    case 'db': { const i = parseInt(a[0], 10); if (!(i >= 0 && i < D.rows.length)) return log(`db <0..${D.rows.length - 1}>`, 'md'); row = i; show('dump'); drawDump(); return inspect(); }
+    case 'xor': $('#key').value = a.join(''); show('dump'); inspect(); return log(row < 0 ? 'select a row first: db <row>' : $('#xor').textContent, 'as');
+    case 'poke': { const x = parseInt(a[0], 16), v = parseInt(a[1], 16); if (!(x >= 0 && x < 256 && v >= 0 && v < 256)) return log('poke <00..FF> <00..FF>', 'md'); sel = { addr: x, value: v }; show('mem'); drawMem(); return log('staged; use the link on the Dump 2 tab to write it', 'm'); }
+    case 'k': show('stack'); return D.repos.forEach((r, i) => log(`#${i} ${r.name}!main`, 'm'));
+    case 'cls': return $('#log').replaceChildren();
+    case 'theme': return $('#theme').click();
+    default: log(`unknown command: ${c.slice(0, 32)}`, 'md');
+  }
+}
+
+function drawAll() {
+  $('#gh').href = `https://github.com/${D.user}`; $('#upd').textContent = 'updated ' + D.updated;
+  drawAsm(); drawRegs(); drawDump(); drawPal(); drawMem(); drawHeat(); drawStack(); drawFame();
+}
+TABS.forEach(([id, name]) => { const b = el('button', 'tab', name); b.id = 't-' + id; b.setAttribute('role', 'tab'); b.onclick = () => show(id); $('#tabs').append(b); });
+show('cpu');
+$('#run').onclick = run; $('#step').onclick = () => step(); $('#restart').onclick = () => { pause(); rip = 0; drawAsm(); log('Restarted.', 'm'); };
+$('#check').onclick = check; $('#key').oninput = inspect;
+$('#theme').onclick = () => { const r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme:dark)').matches || !matchMedia('(prefers-color-scheme:light)').matches; r.dataset.theme = dark ? 'light' : 'dark'; };
+$('#cmd').onkeydown = e => { if (e.key === 'Enter') { command(e.target.value); e.target.value = ''; } };
+drawAll();
+log('Attached to 0xLaileb.exe (PID 1337). Type help.', 'm');
+fetch('data.json', { cache: 'no-store' }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(d => { D = { ...D, ...d }; drawAll(); log(`Symbols loaded: ${D.rows.length} dump rows, ${D.repos.length} frames, ${D.pokes} pokes.`, 'm'); })
+  .catch(() => log('data.json is unavailable: live values are missing.', 'md'));
+</script>
+</body>
+</html>

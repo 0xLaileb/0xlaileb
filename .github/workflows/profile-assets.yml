@@ -8,34 +8,60 @@ on:
     branches: [main]
     paths:
       - tools/**
+      - site/**
       - .github/workflows/profile-assets.yml
+  issues:
+    types: [opened]
 
-permissions:
-  contents: write
-
-concurrency:
-  group: profile-assets
-  cancel-in-progress: true
+permissions: {}
 
 jobs:
-  render:
+  # Visitor games: an issue titled "poke <addr> <value>" or "crackme <proof>" is validated,
+  # labelled and closed. The title reaches the script through the environment only.
+  play:
+    if: github.event_name == 'issues' && (startsWith(github.event.issue.title, 'poke ') || startsWith(github.event.issue.title, 'crackme '))
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    outputs:
+      accepted: ${{ steps.play.outputs.accepted }}
     steps:
       - uses: actions/checkout@v7
 
-      - name: Render stats card
+      - name: Validate and answer the issue
+        id: play
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+        run: python3 tools/play.py
+
+  render:
+    needs: play
+    # Scheduled, manual and push runs skip `play`; an issue run renders only when the issue was accepted.
+    if: ${{ !cancelled() && (github.event_name != 'issues' || needs.play.outputs.accepted == 'true') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: read
+    concurrency:
+      group: profile-assets
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Test the generator
+        run: python3 -m unittest discover -s tools -p "test_*.py"
+
+      - name: Render cards and site data
         env:
           # Optional STATS_TOKEN (read-only PAT) adds private repositories to the language map.
           GITHUB_TOKEN: ${{ secrets.STATS_TOKEN || github.token }}
-        run: python3 tools/profile_svg.py stats --user "${{ github.repository_owner }}" --out dist
-
-      - name: Render contribution snake
-        uses: Platane/snk@v3
-        with:
-          github_user_name: ${{ github.repository_owner }}
-          outputs: |
-            dist/snake-light.svg?palette=github-light&color_snake=#8250df
-            dist/snake-dark.svg?palette=github-dark&color_snake=#bc8cff
+        run: |
+          python3 tools/profile_svg.py all --user "${{ github.repository_owner }}" --out dist
+          cp site/index.html dist/index.html
 
       - name: Publish to the output branch
         uses: crazy-max/ghaction-github-pages@v5
